@@ -131,6 +131,7 @@ network:
                   via: $df
 ">/etc/netplan/$int.yaml;;
 esac
+chmod 600 /etc/netplan/$int.yaml
 }
 
 
@@ -148,5 +149,10 @@ printf "Wellcome, this app can \n 1)Add new interface with yaml file and apply i
 esac
 }
 
-
+printf "Am i sudo ? [yes/no]"
+read sudosu
+case $sudosu in
+	yes) printf 'allok';;
+ 	no) printf 'restart me pls with sudo';;
+  	*) echo 'Huh?'
 app_case
