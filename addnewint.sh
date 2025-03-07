@@ -154,5 +154,6 @@ read sudosu
 case $sudosu in
 	yes) printf 'allok';;
  	no) printf 'restart me pls with sudo';;
-  	*) echo 'Huh?'
+  	*) echo 'Huh?';;
+
 app_case
