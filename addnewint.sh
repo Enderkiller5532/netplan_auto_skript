@@ -20,6 +20,26 @@ function validate_gateway() {
     return 0
 }
 
+function validate_nameserver() {
+    local nameserver="$1"
+    local regex="^([0-9]{1,3}\.){3}[0-9]{1,3}$"
+
+    if [[ ! $nameserver =~ $regex ]]; then
+        echo "Invalid nameserver format"
+        return 1
+    fi
+
+    IFS='.' read -r i1 i2 i3 i4 <<< "$nameserver"
+
+    if (( i1 > 255 || i2 > 255 || i3 > 255 || i4 > 255 )); then
+        echo "Invalid dns range"
+        return 1
+    fi
+
+    return 0
+}
+
+
 function add (){
 	sudo netplan apply /etc/netplan/$int.yaml
 }
@@ -99,8 +119,12 @@ read domain
         [[ "$df" == "no" || "$df" == "" ]] && break
         validate_gateway "$df" && break
         echo "Invalid gateway. Please enter again."
-    doneprintf "Last is nameserver default:'8.8.8.8' you need to delete it manualy for safe"
-read nameserver
+    done
+printf "Last is nameserver default:'8.8.8.8' you need to delete it manualy for safe"
+	while true; do
+	read nameserver
+	validate_nameserver "$nameserver" && break
+	done
 
 case $df in
 	no)sudo echo "
@@ -130,8 +154,10 @@ network:
                 - to: default
                   via: $df
 ">/etc/netplan/$int.yaml;;
+
 esac
-chmod 600 /etc/netplan/$int.yaml
+chmod -u=rw,g=r,o=r /etc/netplan/$int.yaml
+
 }
 
 
@@ -151,9 +177,11 @@ esac
 
 printf "Am i sudo ? [yes/no]"
 read sudosu
+while true;do
 case $sudosu in
-	yes) printf 'allok';;
- 	no) printf 'restart me pls with sudo';;
+	yes) printf 'allok' ; break ;;
+ 	no) printf 'restart me pls with sudo' ; test=`ps aux | grep addnewint.sh | head -n 1 | awk '{print $2}' ` ; kill $test ;;
   	*) echo 'Huh?';;
 esac
+done
 app_case
