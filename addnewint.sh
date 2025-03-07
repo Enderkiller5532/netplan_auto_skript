@@ -155,5 +155,5 @@ case $sudosu in
 	yes) printf 'allok';;
  	no) printf 'restart me pls with sudo';;
   	*) echo 'Huh?';;
-
+esac
 app_case
